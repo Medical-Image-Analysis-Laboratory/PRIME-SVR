@@ -2,23 +2,35 @@
  Physics-infoRmed Implicit Multi-Echo Slice-to-Volume Reconstruction for Fetal T2 mapping 
  
 ## Overview
-## Method
 
+## Method
+![PRIME-SVR pipeline overview](figures/pipeline_overview.png)
 
 ## Installation
-
 
 ## Data preparation
 
 PRIME-SVR expects, per subject:
 
 - 3 stacks (sagittal, axial, coronal) acquired at **N_TE = 3** echo times (extendable to other values),
-- brain masks for each stack (e.g. from [FET-BET](https://github.com/IntelligentImaging/fetal-brain-extraction)),
+- brain masks for each stack,
 Optimal used il faut run le precoess de bias field, et denoised before running.
 - Echo times
 
+**Recommended preprocessing before running PRIME-SVR:**
+
+- **Denoising** of every stack (e.g. non-local means, as implemented in ANTs).
+- **Bias field correction**, run slice-wise on each stack.
+
+Both steps are handled outside the main pipeline and should be applied to the raw stacks beforehand 
+
 ## Run the command 
 
+Reconstruction is driven by a single YAML configuration file, passed to the main training/reconstruction script:
+
+```bash
+python run_prime_svr.py --config configs/config.yaml
+```
 
 ## Citation
 
