@@ -1,6 +1,6 @@
 # PRIME-SVR
  Physics-infoRmed Implicit Multi-Echo Slice-to-Volume Reconstruction for Fetal T2 mapping 
-
+[![arXiv](https://img.shields.io/badge/arXiv-2508.10680-b31b1b.svg)](https://arxiv.org/abs/2508.10680)
  
 ## Overview
 **PRIME-SVR** is the first implicit neural representation (INR) framework for **joint slice to volume reconstruction from multi-echo stacks of fetal MRI**. The method is **fully self-supervised**: no ground-truth HR volume, no external motion estimation network, and no manually annotated training data are required.
@@ -8,9 +8,10 @@
 ## Method
 ![PRIME-SVR pipeline overview](prime_svr_overview.jpeg)
 
-In PRIME-SVR, we model the multi-echo HR intensities as an implicit continuous function defined over 3D spatial coordinates, $\mathbf{V}$. The multi-echo data observed in the acquired 2D slices are treated as sparse, discrete, and degraded samples of this underlying function. The degradation process is slice-specific and modeled through a slice acquisition model, where a subset of its parameters is estimated by a separate implicit continuous function $\mathbf{f_{SM}}$ defined over the coordinates within the slice. Both functions are parameterized by $\theta$ and $\theta'$, respectively, and are learned in a self-supervised manner for each subject by minimizing the discrepancy between the observed slices and those simulated through the slice acquisition model. In addition, a regularization term derived from the Bloch equations is imposed on $\mathbf{V_\theta}$ to model the physical relationship across TEs. Once learned, $\mathbf{V_\theta}$ is queried on any grid sampling the 3D volume, %to reconstruct the HR multi-echo volumes, 
-from which a T2 map is estimated.
-
+- A **single fully connected network ($V_\theta$, a SIREN)** learns a continuous function shared across all TEs, mapping spatial coordinates directly to signal intensities at every echo time. Because this function is common to all TEs, information about the underlying anatomy is naturally shared and reinforced across echoes rather than being reconstructed independently for each one.
+- A **second network ($f_{SM_\theta}$, a SIREN)** estimates slice-specific acquisition degradations (rigid motion, intensity scaling, outlier weighting) directly from the slice coordinates.
+- **Cross-TE coherence is enforced through a Bloch-equation-derived regularization** that penalizes deviations from the expected mono-exponential T2 decay, with an adaptive weighting **$\alpha$** that strengthens the coupling for degraded stacks and relaxes it for high-quality acquisitions.
+  
 ## Installation
 
 ## Data preparation
