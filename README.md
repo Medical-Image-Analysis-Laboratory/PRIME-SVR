@@ -1,10 +1,20 @@
 # PRIME-SVR
  Physics-infoRmed Implicit Multi-Echo Slice-to-Volume Reconstruction for Fetal T2 mapping 
+
  
 ## Overview
 
+Slice-to-volume reconstruction (SVR) is the standard approach for obtaining high-resolution (HR) 3D fetal brain volumes from motion-corrupted stacks of 2D MRI slices acquired in multiple orientations. Existing SVR methods have only been optimized and validated for the range of echo times (TEs) used in routine clinical scans, limiting their performance outside this window and making them incompatible with quantitative T2 mapping, a protocol- and center-independent biomarker of fetal brain maturation that requires HR reconstructions across multiple TEs.
+
 ## Method
+
+**PRIME-SVR** is the first implicit neural representation (INR) framework for **joint HR reconstruction from multi-echo MRI**. The method is **fully self-supervised**: no ground-truth HR volume, no external motion estimation network, and no manually annotated training data are required. Instead:
 ![PRIME-SVR pipeline overview](prime_svr_overview.jpeg)
+
+
+- A **single fully connected network (`V_θ`, a SIREN)** learns a continuous function shared across all TEs, mapping spatial coordinates directly to signal intensities at every echo time. Because this function is common to all TEs, information about the underlying anatomy is naturally shared and reinforced across echoes rather than being reconstructed independently for each one.
+- A **second network (`f_SM`)** estimates slice-specific acquisition degradations (rigid motion, intensity scaling, outlier weighting) directly from the slice coordinates.
+- **Cross-TE coherence is enforced through a Bloch-equation-derived regularization** that penalizes deviations from the expected mono-exponential T2 decay, with adaptive weighting that strengthens the coupling for degraded stacks and relaxes it for high-quality acquisitions — avoiding a systematic bias in the resulting T2 estimates.
 
 ## Installation
 
