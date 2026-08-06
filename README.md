@@ -4,7 +4,7 @@
 ## Overview
 
 ## Method
-![PRIME-SVR pipeline overview](pipeline_overview.jpeg)
+![PRIME-SVR pipeline overview](prime_svr_overview.jpeg)
 
 ## Installation
 
