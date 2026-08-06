@@ -1,0 +1,83 @@
+data:
+  path_stacks:
+  - /home/data/stack1_axial_TE0.nii.gz
+  - /home/data/stack2_cor_TE0.nii.gz
+  - /home/data/stack3_sag_TE0.nii.gz
+    ...
+  - /home/data/stack1_axial_TEN.nii.gz
+  - /home/data/stack2_cor_TEN.nii.gz
+  - /home/data/stack3_sag_TEN.nii.gz
+  path_masks:
+  - /home/data/stack1_axial_TE0_mask.nii.gz
+  - /home/data/stack2_cor_TE0_mask.nii.gz
+  - /home/data/stack3_sag_TE0_mask.nii.gz
+ ...
+  - /home/data/stack1_axial_TEN_mask.nii.gz
+  - /home/data/stack2_cor_TEN.nii_mask.gz
+  - /home/data/stack3_sag_TEN_mask.nii.gz
+  slice_thickness:
+  - 4.5
+  - 4.5
+    ...
+  - 4.5
+  - 4.5
+  - 4.5
+  output_channel: #for each stack, the index of the TE it belongs to, starting at `0`
+  - 0
+  - 0
+  - 0
+   ...
+  - N
+  - N
+  - N
+  align_stacks: center_of_mass
+  bias_field_correction: slice_wise
+  normalize_coords: false
+  normalize_values:
+  - 0
+  - 1
+  min_max_values: ''
+  use_world_space: false
+  recon_spacing:
+  - 0.8
+  - 0.8
+  - 0.8
+  recon_dir: /home/data/output/
+  simulated_slice: False #set to `True` to additionally save the slices simulated from the reconstructed HR volumes through the forward acquisition model
+  coeff: 1 #set `coeff: 0` to disable the Bloch regularization entirely.
+  echotime:
+  - 308
+  - 396
+  - 598
+use_amp: true
+compile: false
+device: cuda
+psf_card_start: 1
+psf_card_end: 64
+psf_card_schedule: quadratic
+batch_size: 25000
+epochs: 60
+load_model: false
+model_path: ''
+sm_in_dim: 1
+sm_out_dim: 8
+sm_n_units: 128
+sm_n_hidden_layers: 3
+sm_omega_0: 30
+sm_last_linear: true
+sm_omega_schedule: vanilla
+outlier_rejection: true
+sr_model: siren_old # use 'sr_model:multi_siren' for one independent network per TE (no shared representation — coupling across TEs then relies only on the Bloch regularization)
+sr_loss_metric: l1
+sr_in_dim: 3
+sr_out_dim: 3 #set this to the total number of TEs (i.e. the number of channels the network `V_θ` must output).
+sr_n_units: 330
+sr_n_hidden_layers: 6
+sr_omega_0: 30
+sr_last_linear: true
+sr_omega_schedule: vanilla
+lr_sr: 5.0e-05
+lr_sm: 0.0005
+scheduler: cosine
+step_size: 30
+gamma: 0.1
