@@ -5,13 +5,6 @@
 ## Overview
 **PRIME-SVR** is the first implicit neural representation (INR) framework for **joint slice to volume reconstruction from multi-echo stacks of fetal MRI**. The method is **fully self-supervised**: no ground-truth HR volume, no external motion estimation network, and no manually annotated training data are required.
 
-## Method
-![PRIME-SVR pipeline overview](prime_svr_overview.jpeg)
-
-- A **single fully connected network ($V_\theta$, a SIREN)** learns a continuous function shared across all TEs, mapping spatial coordinates directly to signal intensities at every echo time. Because this function is common to all TEs, information about the underlying anatomy is naturally shared and reinforced across echoes rather than being reconstructed independently for each one.
-- A **second network ($f_{SM_\theta}$, a SIREN)** estimates slice-specific acquisition degradations (rigid motion, intensity scaling, outlier weighting) directly from the slice coordinates.
-- **Cross-TE coherence is enforced through a Bloch-equation-derived regularization** that penalizes deviations from the expected mono-exponential T2 decay, with an adaptive weighting **$\alpha$** that strengthens the coupling for degraded stacks and relaxes it for high-quality acquisitions.
-  
 ## Installation
 
 ## Data preparation
@@ -37,7 +30,13 @@ Reconstruction is driven by a single YAML configuration file, passed to the main
 ```bash
 python run_prime_svr.py --config configs/config.yaml
 ```
+## Method
+![PRIME-SVR pipeline overview](prime_svr_overview.jpeg)
 
+- A **single fully connected network ($V_\theta$, a SIREN)** learns a continuous function shared across all TEs, mapping spatial coordinates directly to signal intensities at every echo time. Because this function is common to all TEs, information about the underlying anatomy is naturally shared and reinforced across echoes rather than being reconstructed independently for each one.
+- A **second network ($f_{SM_\theta}$, a SIREN)** estimates slice-specific acquisition degradations (rigid motion, intensity scaling, outlier weighting) directly from the slice coordinates.
+- **Cross-TE coherence is enforced through a Bloch-equation-derived regularization** that penalizes deviations from the expected mono-exponential T2 decay, with an adaptive weighting **$\alpha$** that strengthens the coupling for degraded stacks and relaxes it for high-quality acquisitions.
+  
 ## Citation
 
 If you use PRIME-SVR in your research, please cite:
