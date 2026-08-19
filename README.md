@@ -29,7 +29,7 @@ Both steps are handled outside the main pipeline and should be applied to the ra
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/<your-org>/PRIME-SVR.git
+git clone https://github.com/Medical-Image-Analysis-Laboratory/PRIME-SVR.git
 cd PRIME-SVR
 ```
 
