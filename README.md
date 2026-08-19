@@ -16,7 +16,7 @@ PRIME-SVR expects, per subject:
 - At least one orthogonal stack at at least 3 different TEs, or any number of stacks acquired at different TEs (more than 3 TEs is also supported),
 - Brain masks for each stack,
 - Echo times (in ms),
-- Average quality metric score \bar{q} computed with [FetMRQC](https://hub.docker.com/r/thsanchez/fetmrqc) (optional, for optimal regularization strength **$\alpha$**).
+- Average quality metric score $$\bar{q}$$ computed with [FetMRQC](https://hub.docker.com/r/thsanchez/fetmrqc) (optional, for optimal regularization strength **$\alpha$**).
 
 
 **Recommended preprocessing before running PRIME-SVR:**
