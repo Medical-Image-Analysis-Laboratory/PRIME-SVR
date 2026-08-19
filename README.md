@@ -76,6 +76,3 @@ If you use PRIME-SVR in your research, please cite:
 ## Contact
 For questions, please open an issue or contact **Busra Bulut** — busra.bulut@unil.ch — Department of Radiology, Lausanne University Hospital and University of Lausanne.
 
-## Contact
-
-For questions, please open an issue or contact **Busra Bulut** — busra.bulut@unil.ch — Department of Radiology, Lausanne University Hospital and University of Lausanne.
