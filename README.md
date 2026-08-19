@@ -21,7 +21,8 @@ PRIME-SVR expects, per subject:
 
 **Recommended preprocessing before running PRIME-SVR:**
 - **Denoising** of every stack (e.g. non-local means, as implemented in [ANTs](https://antspy.readthedocs.io/en/latest/api/ants.ops.denoise_image.html)
-- **Bias field correction**, run slice-wise on each stack [N4 bias field correction](https://antspyx.readthedocs.io/en/latest/api/ants.ops.bias_correction.html)).
+- **Bias field correction**, run slice-wise on each stack [N4 bias field correction](https://antspyx.readthedocs.io/en/latest/api/ants.ops.bias_correction.html).
+  
 Both steps are handled outside the main pipeline and should be applied to the raw stacks beforehand.
 
 ## Installation
