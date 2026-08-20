@@ -67,7 +67,7 @@ sm_omega_0: 30
 sm_last_linear: true
 sm_omega_schedule: vanilla
 outlier_rejection: true
-sr_model: siren_old # use 'sr_model:multi_siren' for one independent network per TE (no shared representation — coupling across TEs then relies only on the Bloch regularization)
+sr_model: siren # use 'sr_model:multi_siren' for one independent network per TE (no shared representation — coupling across TEs then relies only on the Bloch regularization)
 sr_loss_metric: l1
 sr_in_dim: 3
 sr_out_dim: 3 #set this to the total number of TEs (i.e. the number of channels the network `V_θ` must output).
