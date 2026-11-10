@@ -43,7 +43,7 @@ data:
   - 0.8
   - 0.8
   recon_dir: /home/data/output/
-  simulated_slice: False #set to `True` to additionally save the slices simulated from the reconstructed HR volumes through the forward acquisition model
+  simulated_slices: False #set to `True` to additionally save the slices simulated from the reconstructed HR volumes through the forward acquisition model
   coeff: 1 #set `coeff: 0` to disable the Bloch regularization entirely.
   echotime:
   - 308

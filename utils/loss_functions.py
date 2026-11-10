@@ -137,7 +137,8 @@ class LossComposition(torch.nn.Module):
             loss = loss.mean()
             mc_loss = self.loss_fns['mc'](mc)
             if coeff != 0:
-                loss_regul = regularizer(v_p, sw)
+                # not weighted by the slice weights (as in SirenSVR): plain mean over the voxels
+                loss_regul = regularizer(v_p, None)
                 return loss + coeff * loss_regul, loss_regul, mc_loss
             else :
                 return loss,None,mc_loss

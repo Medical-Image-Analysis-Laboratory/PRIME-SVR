@@ -4,6 +4,7 @@ import torch.nn as nn
 import copy
 from models.siren import Siren
 from models.siren import MultiSiren
+from models.siren_sm import Siren as SirenSM
 from utils.transform_utils import embed2affine
 import numpy as np
 import os 
@@ -67,11 +68,11 @@ class SliceModule(nn.Module):
         self.n_slices = n_slices
         #list of all the slice index
         self.slice_idcs = (torch.arange(n_slices, device=args['device']).unsqueeze(1) / n_slices) * 2 - 1
-        # models.siren.Siren is (in, out, units, layers, f_om, h_om, outermost_linear): pass by name, so the
-        # hidden/last layers get omega sm_omega_0 and the motion starts close to identity (as in SirenSVR)
-        self.sm_net = Siren(
+        # same network and call as SirenSVR: models.siren_sm.Siren is
+        # (in_dim, out_dim, n_units, n_hidden_layers, omega_0, last_linear, omega_schedule)
+        self.sm_net = SirenSM(
             args["sm_in_dim"], args["sm_out_dim"], args["sm_n_units"], args["sm_n_hidden_layers"],
-            f_om=args["sm_omega_0"], h_om=args["sm_omega_0"], outermost_linear=args["sm_last_linear"]
+            args["sm_omega_0"], args["sm_last_linear"], args["sm_omega_schedule"]
         )
     
     def _motion(self, mc):
