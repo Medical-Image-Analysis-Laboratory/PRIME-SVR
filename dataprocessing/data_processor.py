@@ -51,8 +51,14 @@ class Stack:
 
         stack_img_data = stack_img.get_fdata()
         stack_mask = nib.load(self.paths[1]) if self.paths[1] is not None else nib.Nifti1Image((stack_img_data > 0).astype(np.int32), stack_img.affine)
-        stack_img_data = np.clip(stack_img_data, a_min=0, a_max=np.percentile(stack_img_data, 99.9))
-        stack_mask_data = (stack_mask.get_fdata()>0).squeeze()
+        # clip_percentile: null disables the clipping, e.g. for single-slice stacks (SVoRT slices)
+        # that were already clipped stack-wise
+        clip_percentile = self.args['data'].get('clip_percentile', 99.9)
+        if clip_percentile is not None:
+            stack_img_data = np.clip(stack_img_data, a_min=0, a_max=np.percentile(stack_img_data, clip_percentile))
+        else:
+            stack_img_data = np.clip(stack_img_data, a_min=0, a_max=None)
+        stack_mask_data = (stack_mask.get_fdata()>0).reshape(stack_img_data.shape[:3]) # keeps a z axis of size 1 (single-slice stacks)
 
         #if external min max provided
         min_, max_ = stack_img_data[stack_mask_data].min(), stack_img_data[stack_mask_data].max()

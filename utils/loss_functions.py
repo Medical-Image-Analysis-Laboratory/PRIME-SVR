@@ -127,7 +127,8 @@ class LossComposition(torch.nn.Module):
         v_p = v_p * ss if self.o_r else v_p
         loss = self.loss_fns['values'](v_p[v_mask], v[v_mask])
         #if loss nan stop
-        regularizer = LinearRegularizer(echotime)
+        # only built when used: with a single TE, X.T @ X is singular
+        regularizer = LinearRegularizer(echotime) if coeff != 0 else None
 
         if self.o_r: #slice weighting is not used right now
             sw = sw.squeeze(-1)

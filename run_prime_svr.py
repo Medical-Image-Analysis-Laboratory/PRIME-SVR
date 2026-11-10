@@ -36,19 +36,10 @@ def get_config():
     cwd = os.getcwd().replace('/SirenSVR', '')
     args = parse_args()
 
-    #with open(cwd + '/SirenSVR/configs/' + args.config, 'r') as f:
-    #    config = yaml.safe_load(f)
-    #config_path = "/home/mroulet/Documents/Data/fqMRI/low_field/chuv001/output_SIREN/configs/MC_reg_4/config_MC_reg_4.yaml"
-    #with open(config_path, 'r') as f:
-        #config = yaml.safe_load(f)
-
     with open(args.config, 'r') as f:
         config = yaml.safe_load(f)
-
-    # merge args and config into one dict where args overwrite config if provided
     merged_config = {}
     for key, value in config.items():
-        # args is a namespace object, so we need to access the attributes via getattr
         if key in args and getattr(args, key) is not None:
             merged_config[key] = getattr(args, key)
         else:
@@ -66,7 +57,3 @@ if __name__ == "__main__":
     #save the model 
     model_path = os.path.join(merged_config['data']['recon_dir'],"svr_model.pth")
     svr_trainer.save_model(model_path)
-
-
-
-#tmux new-session -d -s run_SVR ' python run_new.py --config /home/mroulet/Documents/Data/KCL_clean/cat005/output_SIREN/configs/MC_reg/config_MC_reg_red_2_smart.yaml> run_SVR.log 2>&1'

@@ -67,11 +67,18 @@ class SliceModule(nn.Module):
         self.n_slices = n_slices
         #list of all the slice index
         self.slice_idcs = (torch.arange(n_slices, device=args['device']).unsqueeze(1) / n_slices) * 2 - 1
+        # models.siren.Siren is (in, out, units, layers, f_om, h_om, outermost_linear): pass by name, so the
+        # hidden/last layers get omega sm_omega_0 and the motion starts close to identity (as in SirenSVR)
         self.sm_net = Siren(
-            args["sm_in_dim"], args["sm_out_dim"], args["sm_n_units"], args["sm_n_hidden_layers"], 
-            args["sm_omega_0"], args["sm_last_linear"], args["sm_omega_schedule"]
+            args["sm_in_dim"], args["sm_out_dim"], args["sm_n_units"], args["sm_n_hidden_layers"],
+            f_om=args["sm_omega_0"], h_om=args["sm_omega_0"], outermost_linear=args["sm_last_linear"]
         )
     
+    def _motion(self, mc):
+        # motion_correction: false keeps the slices where they are (identity transform),
+        # slice scaling and outlier weighting are still learned
+        return mc if self.args.get('motion_correction', True) else torch.zeros_like(mc)
+
     def forward(self, coord_slice_idx,mod_col,coords_xyz, affine_normalized=None, phys_bbox=None):
         '''
         Args:
@@ -88,6 +95,7 @@ class SliceModule(nn.Module):
         '''
         # Predict motion correction (mc), slice scaling (ss), and slice weighting (sw)
         mc, ss, sw = torch.split(self.sm_net(self.slice_idcs), [6, 1, 1], dim=-1)
+        mc = self._motion(mc)
         # Apply activation functions
         ss = torch.nn.functional.softplus(ss)  # Ensure positive scaling
         sw = torch.nn.functional.softplus(sw)  # Ensure weight is in [0, 1]
@@ -125,6 +133,7 @@ class SliceModule(nn.Module):
         self.sm_net.eval()
         with torch.no_grad():
             mc, ss, sw = torch.split(self.sm_net(self.slice_idcs), [6, 1, 1], dim=-1)
+            mc = self._motion(mc)
             ss = torch.nn.functional.softplus(ss)  # Ensure positive scaling
             sw = torch.nn.functional.softplus(sw)  # Ensure weight is in [0, 1]
             sw_og = sw / sw.mean() 

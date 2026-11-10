@@ -20,9 +20,9 @@ def get_subject_name(path):
     elif 'fqMRI' in path:
         #sub_id = path.split('/')[-1].split('_')[0]
         #ses_id = path.split('/')[-1].split('_')[1]
-        sub_id = os.path.basename(os.path.dirname(os.path.dirname(path)))
-        #ses_id=""
-        return sub_id 
+        # BIDS file name sub-XXX_ses-YY_..., also for stacks in anat/prescan/
+        sub_id = os.path.basename(path).split('_')[0]
+        return sub_id
     else:
         # path = "/vol/miltank/users/danneckm/Datasets/multi_modal_busra/anat-3/sub-002_ses-01_run-01_T2w.nii.gz"
         sub_id = path.split('/')[-1].split('_')[0]
