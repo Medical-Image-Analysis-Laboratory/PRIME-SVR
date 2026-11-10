@@ -86,6 +86,8 @@ All files are written to `--output`:
 
 The reconstructions are in the scanner space of the input stacks, or in the SVoRT atlas space with `--svort`. All TEs share the same grid, so they can be fitted voxel-wise for T2 mapping directly.
 
+**Standard space.** To get the reconstruction in a standard space, either run with the SVoRT initialization (`--svort`) or provide an atlas (`--reference`, see [Reconstruction in a reference space](#reconstruction-in-a-reference-space)). If the stacks are too far from the atlas, the registration will not work and a manual initialization (`--reference-init`) is needed.
+
 ### Main options
 
 | Option | Default | Effect |
@@ -96,6 +98,7 @@ The reconstructions are in the scanner space of the input stacks, or in the SVoR
 | `--svort` | off | SVoRT motion correction before PRIME-SVR |
 | `--no-motion-correction` | off | Disables PRIME-SVR's slice motion correction: the slices stay where they are (scanner position, or SVoRT position with `--svort`). Slice scaling and outlier rejection are kept. |
 | `--no-denoise` | off | Skips the denoising (for stacks that are already denoised) |
+| `--simulated-slices` | off | Also saves every input stack simulated from the reconstruction through the acquisition model, in `simulated_stacks/` (`<stack>_simulated.nii.gz`, with the input intensities, and `<stack>_simulated_sw.nii.gz`, the slice weights). Not available with `--svort` |
 | `--sr-model` | `siren` | `multi_siren`: one independent network per TE (coupling across TEs then relies only on the Bloch regularization) |
 | `--mask-threshold` | 0.5 | Fraction of slices that must vote "brain" for a voxel to be in `<sub>_recon_mask.nii.gz` |
 | `--mask-dilate` | 3 | Dilation of the final mask in voxels, to avoid cropping the brain (`0` to disable) |
@@ -167,51 +170,7 @@ $$
 \end{cases}
 $$
 
-## Running from a config file
 
-Reconstruction can also be driven by a single YAML configuration file, passed to the main training/reconstruction script `run_prime_svr.py`. This runs PRIME-SVR only: the preprocessing and the post-processing of the one-command pipeline are not applied.
-
-**1. Prepare the data.** Each stack should already be denoised, bias field corrected and brain extracted, and each mask dilated (the one-command pipeline uses 4 dilation iterations).
-
-**2. Copy the template config and fill it in with your data:**
-```bash
-cp configs/config_model.yaml configs/config_sub-01.yaml
-```
-
-The fields to fill in are:
-
-| Key | What to put |
-|---|---|
-| `data.path_stacks` | Paths of all stacks, of all TEs. The first stack is the reference stack. |
-| `data.path_masks` | Paths of the (dilated) masks, in the same order as `path_stacks` |
-| `data.slice_thickness` | Slice thickness of each stack, in mm, in the same order |
-| `data.output_channel` | For each stack, the index of its TE in `data.echotime`, starting at `0` |
-| `data.echotime` | The echo times, in ms |
-| `data.recon_dir` | The output folder |
-| `data.coeff` | Bloch regularization weight $\alpha$ (`0` to disable it), see [Choosing α](#choosing-α) |
-| `sr_out_dim` | The number of TEs (length of `data.echotime`) |
-
-All the other keys are hyperparameters and can be left at their default values (see [Changing the hyperparameters](#changing-the-hyperparameters) for the main ones).
-
-**3. Run PRIME-SVR:**
-```bash
-python run_prime_svr.py --config configs/config_sub-01.yaml
-```
-
-A few hyperparameters can also be overridden on the command line without editing the config: `--epochs`, `--batch_size`, `--psf_card_end`, `--sr_omega_0`, `--sr_n_hidden_layers`, `--sr_n_units` and `--sr_loss_metric`, e.g.
-```bash
-python run_prime_svr.py --config configs/config_sub-01.yaml --epochs 300
-```
-
-**Outputs** (in `data.recon_dir`, `<sub>` is taken from the first stack's file name):
-
-| File | Content |
-|---|---|
-| `<sub>_recon_<c>.nii.gz` | Reconstruction of output channel `c` (the TE `data.echotime[c]`), not masked |
-| `mc.npy` | Learned motion of every slice |
-| `min_max_values.npy` | Intensity range of the input stacks |
-| `loss.npy` | Loss history |
-| `svr_model.pth` | Trained model |
 
 ## Acknowledgments
 This repository builds upon the implicit neural representation SIREN-based slice-to-volume reconstruction frameworks developed by **Maik Dannecker** and **Steven Jia** for multi-contrast (T1w/T2w) fetal MRI reconstruction. We acknowledge their foundational work, which this project extends to the joint multi-echo, physics-informed SVR for T2 mapping setting.

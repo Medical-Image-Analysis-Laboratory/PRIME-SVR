@@ -111,6 +111,9 @@ def parse_args():
     parser.add_argument("--spacing", type=float, default=0.8, help="Isotropic reconstruction spacing in mm (default 0.8)")
     parser.add_argument("--svort", action="store_true", help="SVoRT motion correction before PRIME-SVR (atlas space)")
     parser.add_argument("--no-denoise", action="store_true", help="Skip the denoising")
+    parser.add_argument("--simulated-slices", action="store_true",
+                        help="Also save every input stack simulated from the reconstruction through the acquisition "
+                             "model (in <output>/simulated_stacks/); not available with --svort")
     parser.add_argument("--no-motion-correction", action="store_true",
                         help="Disable PRIME-SVR's slice motion correction (slices stay where they are, e.g. after "
                              "--svort); slice scaling and outlier rejection are kept")
@@ -147,6 +150,8 @@ def main():
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)  # before torch is imported
     if args.coeff != 0 and not args.TEs:
         sys.exit("ERROR: --coeff (Bloch regularization) needs --TEs")
+    if args.simulated_slices and args.svort:
+        sys.exit("ERROR: --simulated-slices is not available with --svort (one simulated stack per slice)")
     out_dir = os.path.abspath(args.output)
     os.makedirs(out_dir, exist_ok=True)
 
@@ -190,6 +195,7 @@ def main():
     config["sr_out_dim"] = len(tes)
     config["sr_model"] = args.sr_model
     config["motion_correction"] = not args.no_motion_correction
+    data["simulated_slices"] = args.simulated_slices
     brain_masks = [p["brain_mask"] for p in prep]
 
     # ------------------------------------------------ 3. SVoRT
@@ -263,6 +269,25 @@ def main():
         nib.save(nib.Nifti1Image(values * mask, affine), os.path.join(out_dir, name + ".nii.gz"))
         print(f"  {name}.nii.gz" + (f" (TE {te:g} ms)" if args.TEs else ""))
         names.append(name)
+
+    # simulated stacks (written by PRIME-SVR in recon_dir, in the order of path_stacks), with the input intensities
+    if data.get("simulated_slices"):
+        sim_dir = os.path.join(out_dir, "simulated_stacks")
+        os.makedirs(sim_dir, exist_ok=True)
+        for i, stack_path in enumerate(data["path_stacks"]):
+            stem = os.path.basename(stack_path).split("_desc-")[0]
+            for prefix, suffix in (("simulated_stack", "simulated"), ("simulated_stack_sw", "simulated_sw")):
+                src = os.path.join(recon_dir, f"{prefix}_{i}.nii.gz")
+                if not os.path.isfile(src):
+                    continue
+                img = nib.load(src)
+                values = img.get_fdata(dtype=np.float32)
+                if prefix == "simulated_stack":  # slice weights are left as they are
+                    values = recon_mask.unnormalize(values, recon_dir)
+                header = img.header.copy()
+                header.set_data_dtype(np.float32)
+                nib.save(nib.Nifti1Image(values, img.affine, header), os.path.join(sim_dir, f"{stem}_{suffix}.nii.gz"))
+        print(f"  simulated_stacks/ ({len(data['path_stacks'])} stacks)")
 
     # ------------------------------------------------ 6. reference (atlas) space
     if args.reference:
