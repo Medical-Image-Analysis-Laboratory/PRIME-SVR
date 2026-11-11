@@ -47,7 +47,7 @@ PRIME-SVR expects, per subject:
 
 ```bash
 # multi-echo (T2 mapping): one output per TE, with the Bloch regularization
-# Reconstructed volumes will not be in the standard space, PRIME-SVR correct the relative motion between stacks. For standard space reconstruction, you need either to run with svort initialisation or 
+# Reconstructed volumes will not be in the standard space, PRIME-SVR correct the relative motion between stacks.
 python prime_svr_pipeline.py --stacks /data/sub-01/anat --masks /data/sub-01/masks --output /data/out/sub-01 \
     --TEs 308 396 598 --coeff 1
 
@@ -86,7 +86,7 @@ All files are written to `--output`:
 
 The reconstructions are in the scanner space of the input stacks, or in the SVoRT atlas space with `--svort`. All TEs share the same grid, so they can be fitted voxel-wise for T2 mapping directly.
 
-**Standard space.** To get the reconstruction in a standard space, either run with the SVoRT initialization (`--svort`) or provide an atlas (`--reference`, see [Reconstruction in a reference space](#reconstruction-in-a-reference-space)). If the stacks are too far from the atlas, the registration will not work and a manual initialization (`--reference-init`) is needed.
+**Standard space.**  PRIME-SVR correct the relative motion between stacks. To get the reconstruction in a standard space, either run with the SVoRT initialization (`--svort`) or provide an atlas (`--reference`, see [Reconstruction in a reference space](#reconstruction-in-a-reference-space)). If the stacks are too far from the atlas, the registration will not work and a manual initialization (`--reference-init`) is needed.
 
 ### Main options
 
